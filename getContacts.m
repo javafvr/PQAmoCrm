@@ -1,13 +1,13 @@
-let
+﻿let
 getFn = (limits as text, url as text, authQuery as record) =>
     let
 
 /*
 -------------------------------------
--------------Справочники-------------
+-------------п║п©я─п╟п╡пЎя┤пҐп╦п╨п╦-------------
 -------------------------------------
 */
-        //Запрос
+        //п≈п╟п©я─пЎя│
 authWebContents = Web.Contents(
             url,
                 [
@@ -30,13 +30,13 @@ in
 
         getAccountInfo = guideConnect(url, authQuery),
 
-        //Имен пользователей
+        //п≤п╪п╣пҐ п©пЎп╩я▄пЇпЎп╡п╟я┌п╣п╩п╣п╧
         usersRecord = getAccountInfo[users],
         usersToTable = Table.FromList(usersRecord, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
         usersExpandNames = Table.ExpandRecordColumn(usersToTable, "Column1", {"id", "name"}, {"id", "name"}),
         usersExpandNamesToText = Table.TransformColumnTypes(usersExpandNames,{{"id", type text}}),
 
-        //Названий групп
+        //п²п╟пЇп╡п╟пҐп╦п╧ пЁя─я┐п©п©
         groupsRecord = getAccountInfo[groups],
         groupsToTable = Table.FromList(groupsRecord, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
         groupsCheckEmpty = Table.First(groupsToTable),
@@ -45,7 +45,7 @@ in
 
         /*
 -------------------------------------
--------------Справочники-------------
+-------------п║п©я─п╟п╡пЎя┤пҐп╦п╨п╦-------------
 -------------------------------------
 */
 
@@ -67,7 +67,7 @@ in
         expand1 = Table.ExpandListColumn(expand, "contacts"),
         expand2 = Table.ExpandRecordColumn(expand1, "contacts", {"id", "name", "last_modified", "account_id", "date_create", "created_user_id", "modified_user_id", "responsible_user_id", "group_id", "closest_task", "linked_company_id", "company_name", "tags", "type", "custom_fields", "linked_leads_id"}, {"id", "name", "last_modified", "account_id", "date_create", "created_user_id", "modified_user_id", "responsible_user_id", "group_id", "closest_task", "linked_company_id", "company_name", "tags", "type", "custom_fields", "linked_leads_id"}),
 
-        //Перевод дат из timestamp
+        //п÷п╣я─п╣п╡пЎпЄ пЄп╟я┌ п╦пЇ timestamp
         timestampDateCreate = Table.AddColumn(expand2, "Date_create", each if [date_create] = 0 then null else #datetime(1970,1,1,0,0,0)+#duration(0,0,0,[date_create])),
         timestampDateModified = Table.AddColumn(timestampDateCreate, "Last_modified", each if [last_modified] = 0 then null else #datetime(1970,1,1,0,0,0)+#duration(0,0,0,[last_modified])),
         removeOldDates = Table.RemoveColumns(timestampDateModified,{"date_create", "last_modified"}),
@@ -75,17 +75,17 @@ in
 
         tagsNew = Table.AddColumn(removeOldDatesToText, "Tags.1", each Text.Combine(Table.FromRecords([tags])[name], ",")),
 
-        //Справочник Custom_fields
-        startCustomFields = Table.AddColumn(tagsNew, "Пользовательская", each Table.FromRecords([custom_fields])),
+        //п║п©я─п╟п╡пЎя┤пҐп╦п╨ Custom_fields
+        startCustomFields = Table.AddColumn(tagsNew, "п÷пЎп╩я▄пЇпЎп╡п╟я┌п╣п╩я▄я│п╨п╟я▐", each Table.FromRecords([custom_fields])),
         delOtherCF = Table.SelectColumns(startCustomFields,{"id", "custom_fields"}),
         expandCF = Table.ExpandListColumn(delOtherCF, "custom_fields"),
         expandCF1 = Table.ExpandRecordColumn(expandCF, "custom_fields", {"name", "values"}, {"name", "values"}),
-        addValuesCF = Table.AddColumn(expandCF1, "Пользовательская", each Text.Combine(Table.FromRecords([values])[value], ",")),
+        addValuesCF = Table.AddColumn(expandCF1, "п÷пЎп╩я▄пЇпЎп╡п╟я┌п╣п╩я▄я│п╨п╟я▐", each Text.Combine(Table.FromRecords([values])[value], ",")),
         delOtherCF1 = Table.RemoveColumns(addValuesCF,{"values"}),
         delNullCF = Table.SelectRows(delOtherCF1, each ([name] <> null)),
-        finishCustomFields = Table.Pivot(delNullCF, List.Distinct(delNullCF[name]), "name", "Пользовательская"),
+        finishCustomFields = Table.Pivot(delNullCF, List.Distinct(delNullCF[name]), "name", "п÷пЎп╩я▄пЇпЎп╡п╟я┌п╣п╩я▄я│п╨п╟я▐"),
 
-        //merge со справочниками
+        //merge я│пЎ я│п©я─п╟п╡пЎя┤пҐп╦п╨п╟п╪п╦
         mergeWithCustomFields = Table.NestedJoin(
             tagsNew,{"id"},
             finishCustomFields,{"id"},
