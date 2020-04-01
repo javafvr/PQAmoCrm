@@ -71,7 +71,7 @@ authWebContents = Web.Contents(
             [
                 RelativePath="/private/api/v2/json/leads/list",
                 Query=newAuthQuery,
-                Headers="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC"
+                Headers=["IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC"]
             ])),
         toTable = Record.ToTable(getQuery),
         delOther = Table.SelectColumns(toTable,{"Value"}),
