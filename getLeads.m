@@ -84,7 +84,7 @@ in
         removeOldDates = Table.RemoveColumns(timestampDateClose,{"date_create", "last_modified", "date_close"}),
         removeOldDatesToText = Table.TransformColumnTypes(removeOldDates,{{"created_user_id", type text}, {"group_id", type text}, {"pipeline_id", type text}, {"status_id", type text}, {"responsible_user_id", type text}}),
         //if Table.FromRecords([tags]) then
-        tagsNew = Table.AddColumn(removeOldDatesToText, "Tags.1", each Text.Combine(Table.FromRecords([tags])[name], ",")),
+        tagsNew = Table.AddColumn(removeOldDatesToText, "Tags.1", each Text.Combine(if Table.FromRecords([tags]) <> null then Table.FromRecords([tags])[name], "," else null)),
 
         //Custom_fields
         startCustomFields = Table.AddColumn(tagsNew, "Пользовательская", each Table.FromRecords([custom_fields])),
