@@ -1,14 +1,14 @@
-let
+﻿let
 getFn = (limits as text, url as text, authQuery as record) =>
     let
 
 
 /*
--------------------------------------
--------------Справочники-------------
--------------------------------------
+------------------------------------------------
+-------------РЎРїСЂР°РІРѕС‡РЅРёРєРё-------------
+------------------------------------------------
 */
-        //Запрос
+        //Query
         authWebContents = Web.Contents(
             url,
                 [
@@ -32,26 +32,26 @@ in
 
         getAccountInfo = guideConnect(url, authQuery),
 
-        //Имен пользователей
+        //Р�РјРµРЅ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
         usersRecord = getAccountInfo[users],
         usersToTable = Table.FromList(usersRecord, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
         usersExpandNames = Table.ExpandRecordColumn(usersToTable, "Column1", {"id", "name"}, {"id", "name"}),
         usersExpandNamesToText = Table.TransformColumnTypes(usersExpandNames,{{"id", type text}}),
 
-        //Названий статусов
+        //РќР°Р·РІР°РЅРёР№ СЃС‚Р°С‚СѓСЃРѕРІ
         statusesRecord = getAccountInfo[leads_statuses],
         statusesToTable = Table.FromList(statusesRecord, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
         statusesExpandNames = Table.ExpandRecordColumn(statusesToTable, "Column1", {"id", "name"}, {"id", "name"}),
         statusesChangeType = Table.TransformColumnTypes(statusesExpandNames,{{"id", type text}}),
 
-        //Названий групп
+        //РќР°Р·РІР°РЅРёР№ РіСЂСѓРїРї
         groupsRecord = getAccountInfo[groups],
         groupsToTable = Table.FromList(groupsRecord, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
         groupsCheckEmpty = Table.First(groupsToTable),
         groupsExpandNames = Table.ExpandRecordColumn(groupsToTable, "Column1", {"id", "name"}, {"id", "name"}),
         groupsChangeType = Table.TransformColumnTypes(groupsExpandNames,{{"id", type text}}),
 
-        //пайплайны
+        //РїР°Р№РїР»Р°Р№РЅС‹
         pipelinesRecord = getAccountInfo[pipelines],
         pipelinesToTable = Record.ToTable(pipelinesRecord),
         pipelinesCheckEmpty = Table.First(pipelinesToTable),
@@ -77,15 +77,16 @@ in
         expand1 = Table.ExpandListColumn(expand, "leads"),
         expand2 = Table.ExpandRecordColumn(expand1, "leads", {"id", "name", "date_create", "created_user_id", "last_modified", "account_id", "price", "responsible_user_id", "linked_company_id", "group_id", "pipeline_id", "date_close", "closest_task", "loss_reason_id", "deleted", "tags", "status_id", "custom_fields", "main_contact_id"}, {"id", "name", "date_create", "created_user_id", "last_modified", "account_id", "price", "responsible_user_id", "linked_company_id", "group_id", "pipeline_id", "date_close", "closest_task", "loss_reason_id", "deleted", "tags", "status_id", "custom_fields", "main_contact_id"}),
 
-        //Перевод дат из timestamp
+        //to timestamp
         timestampDateCreate = Table.AddColumn(expand2, "Date_create", each if [date_create] = 0 then null else #datetime(1970,1,1,0,0,0)+#duration(0,0,0,[date_create])),
         timestampDateModified = Table.AddColumn(timestampDateCreate, "Last_modified", each if [last_modified] = 0 then null else #datetime(1970,1,1,0,0,0)+#duration(0,0,0,[last_modified])),
         timestampDateClose = Table.AddColumn(timestampDateModified, "Date_close", each if [date_close] = 0 then null else #datetime(1970,1,1,0,0,0)+#duration(0,0,0,[date_close])),
         removeOldDates = Table.RemoveColumns(timestampDateClose,{"date_create", "last_modified", "date_close"}),
         removeOldDatesToText = Table.TransformColumnTypes(removeOldDates,{{"created_user_id", type text}, {"group_id", type text}, {"pipeline_id", type text}, {"status_id", type text}, {"responsible_user_id", type text}}),
-        tagsNew = Table.AddColumn(removeOldDatesToText, "Tags.1", each Text.Combine(Table.FromRecords([tags])[name], ",")),
+        //if Table.FromRecords([tags]) then
+        tagsNew = Table.AddColumn(removeOldDatesToText, "Tags.1", each if [tags] != null then Text.Combine(Table.FromRecords([tags])[name], ",")),
 
-        //Справочник Custom_fields
+        //Custom_fields
         startCustomFields = Table.AddColumn(tagsNew, "Пользовательская", each Table.FromRecords([custom_fields])),
         delOtherCF = Table.SelectColumns(startCustomFields,{"id", "custom_fields"}),
         expandCF = Table.ExpandListColumn(delOtherCF, "custom_fields"),
@@ -95,7 +96,7 @@ in
         delNullCF = Table.SelectRows(delOtherCF1, each ([name] <> null)),
         finishCustomFields = Table.Pivot(delNullCF, List.Distinct(delNullCF[name]), "name", "Пользовательская"),
 
-        //merge со справочниками
+        //merge СЃРѕ СЃРїСЂР°РІРѕС‡РЅРёРєР°РјРё
         mergeWithCustomFields = Table.NestedJoin(
             tagsNew,{"id"},
             finishCustomFields,{"id"},
