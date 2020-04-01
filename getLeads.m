@@ -63,13 +63,13 @@ authWebContents = Web.Contents(
 
         newAuthQuery = Record.Combine({
             authQuery,
+            Headers=[#"Content-Type"="application/json", #"IF-MODIFIED-SINCE"="30.01.2020 00:00:59 UTC"],
             [limit_rows ="500"],
             [limit_offset=limits]
         }),
 
         getQuery  = Json.Document(Web.Contents(url,
             [
-                Headers=[#"Content-Type"="application/json", #"IF-MODIFIED-SINCE"="30.01.2020 00:00:59 UTC"],
                 RelativePath="/private/api/v2/json/leads/list",
                 Query=newAuthQuery
             ])),
