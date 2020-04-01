@@ -64,13 +64,13 @@ in
         newAuthQuery = Record.Combine({
             authQuery,
             [limit_rows ="500"],
-            [limit_offset=limits],
-            [query="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC"]
+            [limit_offset=limits]
             }),
 
         getQuery  = Json.Document(Web.Contents(url,
             [
                 RelativePath="/private/api/v2/json/leads/list",
+                Headers="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC",
                 Query=newAuthQuery
             ])),
         toTable = Record.ToTable(getQuery),
