@@ -65,7 +65,7 @@ in
             authQuery,
             [limit_rows ="500"],
             [limit_offset=limits],
-            ["IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC"]
+            [query="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC"]
             }),
 
         getQuery  = Json.Document(Web.Contents(url,
