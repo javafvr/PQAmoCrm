@@ -8,26 +8,26 @@ getFn = (limits as text, url as text, authQuery as record) =>
 -------------РЎРїСЂР°РІРѕС‡РЅРёРєРё-------------
 ------------------------------------------------
 */
-        //Query
-        authWebContents = Web.Contents(
-            url,
-                [
-                    RelativePath="/private/api/auth.php",
-                    Query=authQuery
-                ]),
+//Query accounts
+authWebContents = Web.Contents(
+    url,
+    [
+        RelativePath="/private/api/auth.php",
+        Query=authQuery
+    ]),
 
-                guideConnect = (url as text, authQuery as record) =>
-    let
-    getAccountInfo = Json.Document(Web.Contents(
-        url,
-        [
-            RelativePath="/private/api/v2/json/accounts/current",
-            Query=authQuery
-        ])),
-    getResponse = getAccountInfo[response],
-    getResponse2 = getResponse[account]
-in
-    getResponse2,
+    guideConnect = (url as text, authQuery as record) =>
+        let
+            getAccountInfo = Json.Document(Web.Contents(
+                url,
+                [
+                    RelativePath="/private/api/v2/json/accounts/current",
+                    Query=authQuery
+                ])),
+            getResponse = getAccountInfo[response],
+            getResponse2 = getResponse[account]
+        in
+            getResponse2,
 
 
         getAccountInfo = guideConnect(url, authQuery),
@@ -64,12 +64,14 @@ in
         newAuthQuery = Record.Combine({
             authQuery,
             [limit_rows ="500"],
-            [limit_offset=limits]}),
+            [limit_offset=limits]
+        }),
 
         getQuery  = Json.Document(Web.Contents(url,
             [
                 RelativePath="/private/api/v2/json/leads/list",
-                Query=newAuthQuery
+                Query=newAuthQuery,
+                Headers="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC"
             ])),
         toTable = Record.ToTable(getQuery),
         delOther = Table.SelectColumns(toTable,{"Value"}),
