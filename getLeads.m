@@ -70,7 +70,7 @@ in
         getQuery  = Json.Document(Web.Contents(url,
             [
                 RelativePath="/private/api/v2/json/leads/list",
-                Headers="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC",
+                //Headers="IF-MODIFIED-SINCE: Mon, 30 Mar 2020 00:00:59 UTC",
                 Query=newAuthQuery
             ])),
         toTable = Record.ToTable(getQuery),
