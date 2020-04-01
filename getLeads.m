@@ -69,7 +69,7 @@ authWebContents = Web.Contents(
 
         getQuery  = Json.Document(Web.Contents(url,
             [
-                Headers=[#"Content-Type"="application/json", #"IF-MODIFIED-SINCE"="Mon, 30 Mar 2020 00:00:59 UTC"],
+                Headers=[#"Content-Type"="application/json", #"IF-MODIFIED-SINCE"="30.01.2020 00:00:59 UTC"],
                 RelativePath="/private/api/v2/json/leads/list",
                 Query=newAuthQuery
             ])),
